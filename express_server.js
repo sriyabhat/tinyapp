@@ -47,15 +47,20 @@ app.get('/urls/new', (req, res) => {
 });
 
 //Display the specified URL
-app.get('/urls/:shortURL', (req, res) => {    
+app.get('/u/:shortURL', (req, res) => {    
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
 
 //POST request to add a new URL
 app.post('/urls', (req,res) => {
-  console.log(req.body);
-  res.send('ok');
+
+  //save the shortURL - random 6 letter string and the Long URl in the database;
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //Server Listens 
