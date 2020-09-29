@@ -15,6 +15,11 @@ const urlDatabase = {
 };
 
 
+const generateRandomString = () => {
+  return Math.random().toString(36).substring(2,8);
+};
+
+
 //Process GET request (HomePage)
 app.get('/', (req, res) => {
   res.send("Hello");
