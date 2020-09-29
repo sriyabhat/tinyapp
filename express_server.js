@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 
 //SERVER created
 const app = express();
@@ -6,11 +7,13 @@ const app = express();
 const PORT = 5000;
 
 app.set('view engine','ejs');
+app.use(bodyParser.urlencoded({extended : true}));
 
 const urlDatabase = {  
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 
 //Process GET request (HomePage)
 app.get('/', (req, res) => {
@@ -44,7 +47,11 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-
+//POST request to add a new URL
+app.post('/urls', (req,res) => {
+  console.log(req.body);
+  res.send('ok');
+});
 
 //Server Listens 
 app.listen(PORT,() => {
