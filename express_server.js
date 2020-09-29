@@ -3,7 +3,7 @@ const express = require('express');
 //SERVER created
 const app = express();
 
-const PORT = 8080;
+const PORT = 5000;
 
 app.set('view engine','ejs');
 
@@ -27,17 +27,24 @@ app.get('/hello',(req,res) => {
   res.send("<html><body>Hello <b>World</b></body></html>");
 });
 
-
+//Display all the URLS
 app.get('/urls', (req, res) => {  
   const templateVars = { urls : urlDatabase };
   res.render('urls_index', templateVars);
 });
 
+//Display a page which allows to add new URL 
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
+});
 
+//Display the specified URL
 app.get('/urls/:shortURL', (req, res) => {    
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
-})
+});
+
+
 
 //Server Listens 
 app.listen(PORT,() => {
