@@ -64,6 +64,13 @@ app.get('/u/:shortURL', (req, res) => {
   
 });
 
+//Render the EDIT URL page
+app.get('/urls/edit/:ID', (req,res) => {
+  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID]};
+  res.render('urls_show',templateVars);
+
+});
+
 //POST request to add a new URL
 app.post('/urls', (req,res) => {
   //save the shortURL - random 6 letter string and the Long URl in the database;
