@@ -7,6 +7,11 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
+  <style>
+    .btn-delete {border-color: #dc3545;
+    color: #dc3545;}
+  </style>
+
 </head>
 <body>
   <header>
@@ -19,14 +24,23 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody>    
+        <% if(Object.keys(urls).length === 0) {%>
+          <tr><td></td><td>No Records Found</td><td></td></tr>
+        <%} else {%>
+          
         <% for(let url in urls) { %>
-          <tr>
-            <td><%= url %></td>
-            <td><%= urls[url] %></td>
-          </tr>
+          <form method = "POST" action = "/urls/<%= url %>/delete" >
+            <tr>
+              <td><%= url %></td>
+              <td><%= urls[url] %></td>
+              <td><button type = "submit" class = "btn btn-delete" id = <%=url %>>Delete</button></td>
+            </tr>
+          </form>          
+        <% } %>
         <% } %>
       </tbody>
     </table>

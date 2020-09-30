@@ -15,6 +15,8 @@ const urlDatabase = {
 };
 
 
+
+
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2,8);
 };
@@ -36,7 +38,7 @@ app.get('/hello',(req,res) => {
 });
 
 //Display all the URLS
-app.get('/urls', (req, res) => {  
+app.get('/urls', (req, res) => {    
   const templateVars = { urls : urlDatabase };
   res.render('urls_index', templateVars);
 });
@@ -52,7 +54,7 @@ app.get('/u/:shortURL', (req, res) => {
   //res.render('urls_show', templateVars);
  
   longURL = urlDatabase[req.params.shortURL];
-
+  
   if(longURL) {
     res.statusCode = 300;
     res.redirect(longURL);
@@ -68,9 +70,19 @@ app.post('/urls', (req,res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
-
+  
   res.redirect(`/u/${shortURL}`);
 });
+
+
+//delete a URL
+app.post('/urls/:shortURL/delete', (req,res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect('/urls');
+  
+});
+
 
 //Server Listens 
 app.listen(PORT,() => {
