@@ -8,8 +8,9 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
   <style>
-    .btn-delete {border-color: #dc3545;
-    color: #dc3545;}
+    .btn-delete {border-color: #dc3545; color: #dc3545;}
+    .btn-edit {border-color: #007bff;}
+
   </style>
 
 </head>
@@ -30,7 +31,7 @@
       </thead>
       <tbody>    
         <% if(Object.keys(urls).length === 0) {%>
-          <tr><td></td><td>No Records Found</td><td></td></tr>
+          <tr><td colspan="4"><p style = "padding-left: 701px">*******No Records Found******</p></td></tr>
         <%} else {%>
           
         <% for(let url in urls) { %>
@@ -38,8 +39,14 @@
             <tr>
               <td><%= url %></td>
               <td><%= urls[url] %></td>
-              <td><a href = "/urls/edit/<%= url %>">Edit</a></td>
-              <td><button type = "submit" class = "btn btn-delete" >Delete</button></td>
+              <td>
+                <button class ="btn btn-edit">
+                  <a href = "/urls/edit/<%= url %>">Edit</a>
+                </button>
+              </td>
+              <td>
+                <button type = "submit" class = "btn btn-delete" >Delete</button>
+              </td>
             </tr>
           </form>          
         <% } %>

@@ -82,7 +82,7 @@ app.post('/urls', (req,res) => {
 });
 
 
-//delete a URL
+//POST request to delete a URL
 app.post('/urls/:shortURL/delete', (req,res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
@@ -90,6 +90,15 @@ app.post('/urls/:shortURL/delete', (req,res) => {
   
 });
 
+//POST request to edit a new URL
+app.post('/urls/:ID', (req,res) => {
+  
+  const shortURL = req.params.ID;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  
+  res.redirect(`/urls`);
+});
 
 //Server Listens 
 app.listen(PORT,() => {
