@@ -57,10 +57,7 @@ app.get('/urls', (req, res) => {
   
   (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
 
-  const templateVars = { urls : urlDatabase, user };
-  console.log(templateVars);
-  console.log(req.cookies["user_id"]);
-  console.log(users);
+  const templateVars = { urls : urlDatabase, user };  
   res.render('urls_index', templateVars);
 });
 
@@ -155,7 +152,6 @@ app.post('/login', (req, res) => {
 //clear a cookie afte logout
 app.post('/logout', (req,res) => {
   res.clearCookie("user_id");
-  console.log("in the logout route")
   res.redirect('/urls');
 });
 
