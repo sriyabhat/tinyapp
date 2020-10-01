@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
 
 //SERVER created
 const app = express();
@@ -8,6 +9,7 @@ const PORT = 5000;
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended : true}));
+app.use(cookieParser())
 
 const urlDatabase = {  
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -39,13 +41,17 @@ app.get('/hello',(req,res) => {
 
 //Display all the URLS
 app.get('/urls', (req, res) => {    
-  const templateVars = { urls : urlDatabase };
+  
+  (req.cookies["userName"]) ? userName = req.cookies["userName"] : userName = null;
+
+  const templateVars = { urls : urlDatabase, userName };
   res.render('urls_index', templateVars);
 });
 
 //Display a page which allows to add new URL 
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = { userName: req.cookies["userName"] };
+  res.render('urls_new',templateVars);
 });
 
 //Display the specified URL
@@ -66,7 +72,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 //Render the EDIT URL page
 app.get('/urls/edit/:ID', (req,res) => {
-  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID]};
+  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID], userName: req.cookies["userName"]};
   res.render('urls_show',templateVars);
 
 });
@@ -100,6 +106,18 @@ app.post('/urls/:ID', (req,res) => {
   res.redirect(`/urls`);
 });
 
+//set a cookie on Login
+app.post('/login', (req, res) => {
+  res.cookie ("userName",req.body.userName);
+  res.redirect('/urls');
+});
+
+//clear a cookie afte logout
+app.post('/logout', (req,res) => {
+  res.clearCookie("userName");
+  console.log("in the logout route")
+  res.redirect('/urls');
+});
 //Server Listens 
 app.listen(PORT,() => {
   console.log(`Example app listening on Port ${PORT}`);
