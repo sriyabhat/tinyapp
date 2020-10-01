@@ -16,6 +16,18 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "user1RandomID" : {
+    id : "user1RandomID",
+    email : "user1@something.com",
+    password : "i dont know"
+  },
+  "user2RandomID" : {
+    id : "user2RandomID",
+    email : "user2@something.com",
+    password : "danger zone"
+  }
+};
 
 
 
