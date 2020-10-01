@@ -134,6 +134,18 @@ app.post('/logout', (req,res) => {
   console.log("in the logout route")
   res.redirect('/urls');
 });
+
+//POST request to save the new USER
+app.post('/register', (req,res) => {
+  const userID = generateRandomString();
+  
+  users[userID] = {id :userID, email : req.body.email, password : req.body.password};
+  res.cookie("user_id",userID); 
+  console.log(users);
+  res.redirect('/urls');
+
+});
+
 //Server Listens 
 app.listen(PORT,() => {
   console.log(`Example app listening on Port ${PORT}`);
