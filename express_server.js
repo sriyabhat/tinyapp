@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const {checkUserEmail} = require('./authentication');
 
 //SERVER created
 const app = express();
@@ -143,11 +144,21 @@ app.post('/logout', (req,res) => {
 
 //POST request to save the new USER
 app.post('/register', (req,res) => {
-  const userID = generateRandomString();
+  const { email , password } = req.body;
   
-  users[userID] = {id :userID, email : req.body.email, password : req.body.password};
-  res.cookie("user_id",userID); 
-  console.log(users);
+  if(!(email && password)) {
+    res.statusCode = 400
+    return res.send('Email or password cannot be null');
+  }
+  const user = checkUserEmail(users,email);
+  if (user) {
+    res.statusCode = 400;
+    return res.send('Email already exists');
+  }
+
+  const userID = generateRandomString();  
+  users[userID] = {id :userID, email, password };
+  res.cookie("user_id",userID);   
   res.redirect('/urls');
 
 });
