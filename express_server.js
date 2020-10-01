@@ -136,8 +136,20 @@ app.post('/urls/:ID', (req,res) => {
 
 //set a cookie on Login
 app.post('/login', (req, res) => {
-  res.cookie ("userName",req.body.userName);
-  res.redirect('/urls');
+
+  const {email, password} = req.body;  
+  const user = checkUserEmail(users,email);
+ 
+  if(user) {
+    if(user.password === password) {
+      res.cookie ("user_id",user["id"]);
+      return res.redirect('/urls');
+    }  
+  } 
+
+  res.statusCode = 403;
+  res.send("Invalid Credentials");
+  
 });
 
 //clear a cookie afte logout
