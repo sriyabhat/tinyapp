@@ -101,6 +101,11 @@ app.get('/register', (req,res) => {
   res.render('user_registration_form',{user});
 });
 
+//Render a Login Page
+app.get('/login', (req,res) => {
+  res.render('login_form', {user : null});
+});
+
 //POST request to add a new URL
 app.post('/urls', (req,res) => {
   //save the shortURL - random 6 letter string and the Long URl in the database;

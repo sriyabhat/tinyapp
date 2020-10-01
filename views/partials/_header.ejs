@@ -11,17 +11,13 @@
         <%if(user) { %>
           <div class="form-group mb-2">
             <form class ="form-inline" method = "POST" action = "/logout">
-              <h6 style = "margin-left: 1200px">Logged In As :  <%= user["email"] %></h6>
-              <button style = "margin-left: 25px" type = "submit" class ="btn btn-outline-dark">Logout</button>
+              <h6 style = "margin-top:45px;position:fixed;right:214px">Logged In As :  <%= user["email"] %></h6>
+              <button style = "margin-top:18px;position: fixed;right: 126px;" type = "submit" class ="btn btn-outline-dark">Logout</button>
             </form>
         </div>
-        <%} else{ %>
-          <div class="form-group mb-2">
-            <form class ="form-inline" method = "POST" action = "/login">
-              <input style = "margin-left: 1200px" class ="form-control" type = "text" name = "userName" placeholder="userName"/>
-              <button style = "margin-left: 25px"type = "submit" class ="btn btn-outline-dark">Login</button>
-            </form>
-          </div>
+        <%} else{ %> 
+          <a style ="margin-left: 25px;position: fixed;right: 126px;"  class ="btn btn-outline-dark" href="/register">Register</a>
+          <a style ="margin-left: 25px;position: fixed;right: 227px;"  class ="btn btn-outline-dark" href="/login">Login</a>
         <%}%>  
       </div>
     </div>
