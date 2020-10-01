@@ -1,20 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const {checkUserEmail} = require('./authentication');
+const {checkUserEmail,getUrlsForUser,urlExists} = require('./authentication');
 
 //SERVER created
 const app = express();
 
-const PORT = 5000;
+const PORT = 8080;
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(cookieParser())
 
 const urlDatabase = {  
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID : "user1RandomID"},
+  "9sm5xK": {longURL: "http://www.google.com", userID : "user2RandomID"}
 };
 
 const users = {
@@ -57,7 +57,9 @@ app.get('/urls', (req, res) => {
   
   (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
 
-  const templateVars = { urls : urlDatabase, user };  
+  const urlsForUser = getUrlsForUser(urlDatabase,req.cookies["user_id"]);
+  
+  const templateVars = { urls : urlsForUser, user };  
   res.render('urls_index', templateVars);
 });
 
@@ -78,7 +80,7 @@ app.get('/u/:shortURL', (req, res) => {
   //const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   //res.render('urls_show', templateVars);
  
-  longURL = urlDatabase[req.params.shortURL];
+  const {longURL} = urlDatabase[req.params.shortURL];
   
   if(longURL) {
     res.statusCode = 300;
@@ -92,7 +94,7 @@ app.get('/u/:shortURL', (req, res) => {
 //Render the EDIT URL page
 app.get('/urls/edit/:ID', (req,res) => {
   (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
-  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID], user};
+  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID].longURL, user};
   res.render('urls_show',templateVars);
 
 });
@@ -113,7 +115,8 @@ app.post('/urls', (req,res) => {
   //save the shortURL - random 6 letter string and the Long URl in the database;
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  const userID = req.cookies["user_id"];
+  urlDatabase[shortURL] = {longURL, userID};
   
   res.redirect(`/u/${shortURL}`);
 });
@@ -121,19 +124,43 @@ app.post('/urls', (req,res) => {
 
 //POST request to delete a URL
 app.post('/urls/:shortURL/delete', (req,res) => {
+  let found = false;
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');  
+
+  const userUrls = getUrlsForUser(urlDatabase,req.cookies["user_id"]);  
+  if(Object.keys(userUrls).length !== 0) {
+     found = urlExists(userUrls,shortURL);
+  }
+ 
+  if(found) {        
+    delete urlDatabase[shortURL];    
+    res.redirect('/urls');
+  } else {
+    res.send('Access Denied');
+  }
+    
 });
 
+//oelot6
 //POST request to edit a new URL
 app.post('/urls/:ID', (req,res) => {
   
+  let found = false;
   const shortURL = req.params.ID;
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
-  
-  res.redirect(`/urls`);
+
+  const userUrls = getUrlsForUser(urlDatabase,req.cookies["user_id"]);
+  if(Object.keys(userUrls).length !== 0) {
+     found = urlExists(userUrls,shortURL);
+  }
+ 
+  if(found) {  
+    const longURL = req.body.longURL;
+    urlDatabase[shortURL].longURL = longURL;  
+    res.redirect(`/urls`);
+  } else {
+    res.send('Access Denied');
+  }
+
 });
 
 //set a cookie on Login
