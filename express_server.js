@@ -77,6 +77,11 @@ app.get('/urls/edit/:ID', (req,res) => {
 
 });
 
+//Render User Registration Page 
+app.get('/register', (req,res) => {
+  res.render('user_registration_form',{userName : null});
+});
+
 //POST request to add a new URL
 app.post('/urls', (req,res) => {
   //save the shortURL - random 6 letter string and the Long URl in the database;
@@ -92,8 +97,7 @@ app.post('/urls', (req,res) => {
 app.post('/urls/:shortURL/delete', (req,res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  res.redirect('/urls');
-  
+  res.redirect('/urls');  
 });
 
 //POST request to edit a new URL
