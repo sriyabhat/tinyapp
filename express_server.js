@@ -64,8 +64,13 @@ app.get('/urls', (req, res) => {
 //Display a page which allows to add new URL 
 app.get('/urls/new', (req, res) => {
   (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
-  const templateVars = { user };
-  res.render('urls_new',templateVars);
+  if(user){
+    const templateVars = { user };
+    res.render('urls_new',templateVars);
+  } else {
+    res.redirect('/login');
+  }
+  
 });
 
 //Display the specified URL
