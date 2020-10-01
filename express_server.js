@@ -54,15 +54,19 @@ app.get('/hello',(req,res) => {
 //Display all the URLS
 app.get('/urls', (req, res) => {    
   
-  (req.cookies["userName"]) ? userName = req.cookies["userName"] : userName = null;
+  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
 
-  const templateVars = { urls : urlDatabase, userName };
+  const templateVars = { urls : urlDatabase, user };
+  console.log(templateVars);
+  console.log(req.cookies["user_id"]);
+  console.log(users);
   res.render('urls_index', templateVars);
 });
 
 //Display a page which allows to add new URL 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { userName: req.cookies["userName"] };
+  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  const templateVars = { user };
   res.render('urls_new',templateVars);
 });
 
@@ -84,14 +88,16 @@ app.get('/u/:shortURL', (req, res) => {
 
 //Render the EDIT URL page
 app.get('/urls/edit/:ID', (req,res) => {
-  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID], userName: req.cookies["userName"]};
+  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID], user};
   res.render('urls_show',templateVars);
 
 });
 
 //Render User Registration Page 
 app.get('/register', (req,res) => {
-  res.render('user_registration_form',{userName : null});
+  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  res.render('user_registration_form',{user});
 });
 
 //POST request to add a new URL
@@ -130,7 +136,7 @@ app.post('/login', (req, res) => {
 
 //clear a cookie afte logout
 app.post('/logout', (req,res) => {
-  res.clearCookie("userName");
+  res.clearCookie("user_id");
   console.log("in the logout route")
   res.redirect('/urls');
 });
