@@ -1,42 +1,28 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-//const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session')
-const {checkUserEmail,getUrlsForUser,urlExists,generateRandomString} = require('./helpers');
-const { hashPassword } = require('./crypt');
-const { hash } = require('bcrypt');
+const { express,
+  bodyParser,
+  cookieSession,
+  checkUserEmail,
+  getUrlsForUser, 
+  urlExists,
+  generateRandomString,
+  hash,
+  hashPassword,
+  urlDatabase,
+  users,
+  PORT
+} = require('./config');
 
 
 //SERVER created
 const app = express();
 
-const PORT = 8080;
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended : true}));
-//app.use(cookieParser())
 app.use(cookieSession({
   name: 'session',
   keys: ['$2b$10$8p4coXV9lIA.W8o6TDez1.jmzEpc1c4ulMf0CHFi/XdkVVHcJAVFK', '$2b$10$8p4coXV9lIA.W8o6TDez1.hTzDyZxTQqyiThJcaiuABB2pKQHWGCG']
 }))
-
-const urlDatabase = {  
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID : "user1RandomID"},
-  "9sm5xK": {longURL: "http://www.google.com", userID : "user2RandomID"}
-};
-
-const users = {
-  "user1RandomID" : {
-    id : "user1RandomID",
-    email : "user1@something.com",
-    password : hashPassword("i dont know")
-  },
-  "user2RandomID" : {
-    id : "user2RandomID",
-    email : "user2@something.com",
-    password : hashPassword("danger zone")
-  }
-};
 
 
 
@@ -44,18 +30,16 @@ const users = {
 
 //Process GET request (HomePage)
 app.get('/', (req, res) => {
-  res.send("Hello");
+  
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
+  
+  if(user){
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
-//send json String
-app.get('/urls.json', (req,res) => {
-  res.json(urlDatabase);
-});
-
-//send HTML 
-app.get('/hello',(req,res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>");
-});
 
 //Display all the URLS
 app.get('/urls', (req, res) => {    
@@ -68,6 +52,8 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+
+
 //Display a page which allows to add new URL 
 app.get('/urls/new', (req, res) => {
   (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
@@ -76,29 +62,49 @@ app.get('/urls/new', (req, res) => {
     res.render('urls_new',templateVars);
   } else {
     res.redirect('/login');
+  }  
+});
+
+//Display all the URLS
+app.get('/urls/:id', (req, res) => {    
+  
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
+
+  if(!user) {
+    return res.send('Please Login to use this page');
   }
+  //get the URL list for the Logged in User
+  const urlsForUser = getUrlsForUser(urlDatabase,req.session["user_id"]);
+  
+  //if the logged in user has the short URL render the EDIT page
+  if(urlsForUser[req.params.id]){
+     res.redirect(`/urls/edit/${req.params.id}`);
+  } else {
+    res.send('Access Denied');
+  }
+
   
 });
 
+
 //Display the specified URL
-app.get('/u/:shortURL', (req, res) => {
-  //const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  //res.render('urls_show', templateVars);
- 
-  const {longURL} = urlDatabase[req.params.shortURL];
+app.get('/u/:shortURL', (req, res) => {  
   
-  if(longURL) {
-    res.statusCode = 300;
-    res.redirect(longURL);
-  } else {
-    res.render('404');
-  }
+    const {longURL} = urlDatabase[req.params.shortURL];
   
+    if(longURL) {
+      res.statusCode = 300;
+      res.redirect(longURL);
+    } else {
+      res.render('404');
+    }  
 });
 
 //Render the EDIT URL page
 app.get('/urls/edit/:ID', (req,res) => {
+
   (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
+
   const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID].longURL, user};
   res.render('urls_show',templateVars);
 
@@ -106,7 +112,9 @@ app.get('/urls/edit/:ID', (req,res) => {
 
 //Render User Registration Page 
 app.get('/register', (req,res) => {
+
   (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
+
   res.render('user_registration_form',{user});
 });
 
