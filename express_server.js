@@ -169,11 +169,12 @@ app.post('/urls/:ID', (req,res) => {
 //set a cookie on Login
 app.post('/login', (req, res) => {
 
-  const {email, password} = req.body;  
+  const {email, password} = req.body; 
+  
   const user = checkUserEmail(users,email);
  
   if(user) {
-    if(user.password === password) {
+    if(user.password === hashPassword(password)) {
       res.cookie ("user_id",user["id"]);
       return res.redirect('/urls');
     }  
