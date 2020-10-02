@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session')
 const {checkUserEmail,getUrlsForUser,urlExists} = require('./authentication');
 const { hashPassword } = require('./crypt');
 const { hash } = require('bcrypt');
@@ -13,7 +14,11 @@ const PORT = 8080;
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended : true}));
-app.use(cookieParser())
+//app.use(cookieParser())
+app.use(cookieSession({
+  name: 'session',
+  keys: ['$2b$10$8p4coXV9lIA.W8o6TDez1.jmzEpc1c4ulMf0CHFi/XdkVVHcJAVFK', '$2b$10$8p4coXV9lIA.W8o6TDez1.hTzDyZxTQqyiThJcaiuABB2pKQHWGCG']
+}))
 
 const urlDatabase = {  
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID : "user1RandomID"},
@@ -58,9 +63,9 @@ app.get('/hello',(req,res) => {
 //Display all the URLS
 app.get('/urls', (req, res) => {    
   
-  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
 
-  const urlsForUser = getUrlsForUser(urlDatabase,req.cookies["user_id"]);
+  const urlsForUser = getUrlsForUser(urlDatabase,req.session["user_id"]);
   
   const templateVars = { urls : urlsForUser, user };  
   res.render('urls_index', templateVars);
@@ -68,7 +73,7 @@ app.get('/urls', (req, res) => {
 
 //Display a page which allows to add new URL 
 app.get('/urls/new', (req, res) => {
-  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
   if(user){
     const templateVars = { user };
     res.render('urls_new',templateVars);
@@ -96,7 +101,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 //Render the EDIT URL page
 app.get('/urls/edit/:ID', (req,res) => {
-  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
   const templateVars = {shortURL : req.params.ID, longURL : urlDatabase[req.params.ID].longURL, user};
   res.render('urls_show',templateVars);
 
@@ -104,7 +109,7 @@ app.get('/urls/edit/:ID', (req,res) => {
 
 //Render User Registration Page 
 app.get('/register', (req,res) => {
-  (req.cookies["user_id"]) ? user = users[req.cookies["user_id"]] : user = null;
+  (req.session["user_id"]) ? user = users[req.session["user_id"]] : user = null;
   res.render('user_registration_form',{user});
 });
 
@@ -118,7 +123,7 @@ app.post('/urls', (req,res) => {
   //save the shortURL - random 6 letter string and the Long URl in the database;
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  const userID = req.cookies["user_id"];
+  const userID = req.session["user_id"];
   urlDatabase[shortURL] = {longURL, userID};
   
   res.redirect(`/u/${shortURL}`);
@@ -130,7 +135,7 @@ app.post('/urls/:shortURL/delete', (req,res) => {
   let found = false;
   const shortURL = req.params.shortURL;
 
-  const userUrls = getUrlsForUser(urlDatabase,req.cookies["user_id"]);  
+  const userUrls = getUrlsForUser(urlDatabase,req.session["user_id"]);  
   if(Object.keys(userUrls).length !== 0) {
      found = urlExists(userUrls,shortURL);
   }
@@ -151,7 +156,7 @@ app.post('/urls/:ID', (req,res) => {
   let found = false;
   const shortURL = req.params.ID;
 
-  const userUrls = getUrlsForUser(urlDatabase,req.cookies["user_id"]);
+  const userUrls = getUrlsForUser(urlDatabase,req.session["user_id"]);
   if(Object.keys(userUrls).length !== 0) {
      found = urlExists(userUrls,shortURL);
   }
@@ -175,7 +180,7 @@ app.post('/login', (req, res) => {
  
   if(user) {
     if(user.password === hashPassword(password)) {
-      res.cookie ("user_id",user["id"]);
+      req.session["user_id"] = user["id"];
       return res.redirect('/urls');
     }  
   } 
@@ -187,7 +192,7 @@ app.post('/login', (req, res) => {
 
 //clear a cookie afte logout
 app.post('/logout', (req,res) => {
-  res.clearCookie("user_id");
+  req.session["user_id"] = "";
   res.redirect('/urls');
 });
 
@@ -197,7 +202,7 @@ app.post('/register', (req,res) => {
   
   if(!(email && password)) {
     res.statusCode = 400
-    return res.send('Email or password cannot be null');
+    return res.send('Email are password are mandatory!');
   }
   const user = checkUserEmail(users,email);
   if (user) {
@@ -206,7 +211,7 @@ app.post('/register', (req,res) => {
   }  
   const userID = generateRandomString();  
   users[userID] = {id :userID, email, password: hashPassword(password) };
-  res.cookie("user_id",userID);  
+  req.session["user_id"] = userID; 
   console.log(users); 
   res.redirect('/urls');
 
