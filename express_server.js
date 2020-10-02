@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {checkUserEmail,getUrlsForUser,urlExists} = require('./authentication');
+const { hashPassword } = require('./crypt');
+const { hash } = require('bcrypt');
+
 
 //SERVER created
 const app = express();
@@ -21,12 +24,12 @@ const users = {
   "user1RandomID" : {
     id : "user1RandomID",
     email : "user1@something.com",
-    password : "i dont know"
+    password : hashPassword("i dont know")
   },
   "user2RandomID" : {
     id : "user2RandomID",
     email : "user2@something.com",
-    password : "danger zone"
+    password : hashPassword("danger zone")
   }
 };
 
@@ -199,11 +202,11 @@ app.post('/register', (req,res) => {
   if (user) {
     res.statusCode = 400;
     return res.send('Email already exists');
-  }
-
+  }  
   const userID = generateRandomString();  
-  users[userID] = {id :userID, email, password };
-  res.cookie("user_id",userID);   
+  users[userID] = {id :userID, email, password: hashPassword(password) };
+  res.cookie("user_id",userID);  
+  console.log(users); 
   res.redirect('/urls');
 
 });
