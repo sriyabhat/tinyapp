@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 //const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session')
-const {checkUserEmail,getUrlsForUser,urlExists} = require('./helpers');
+const {checkUserEmail,getUrlsForUser,urlExists,generateRandomString} = require('./helpers');
 const { hashPassword } = require('./crypt');
 const { hash } = require('bcrypt');
 
@@ -40,9 +40,6 @@ const users = {
 
 
 
-const generateRandomString = () => {
-  return Math.random().toString(36).substring(2,8);
-};
 
 
 //Process GET request (HomePage)

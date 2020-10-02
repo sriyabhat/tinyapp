@@ -30,4 +30,9 @@ const urlExists = (db,shortUrl) => {
   return false;
 }
 
-module.exports = { checkUserEmail,getUrlsForUser,urlExists };
+const generateRandomString = () => {
+  return Math.random().toString(36).substring(2,8);
+};
+
+
+module.exports = { checkUserEmail,getUrlsForUser,urlExists,generateRandomString };
