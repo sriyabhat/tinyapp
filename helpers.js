@@ -8,19 +8,18 @@ const checkUserEmail = function(db,email){
    return null;  
 };
 
-
-
+//Return list of URLS for the User(ID)
 const getUrlsForUser = (db,ID) => {
-  let userUrls = {};
-  
+  let userUrls = {};  
   for(let url in db) {
     if(db[url].userID === ID) {      
       userUrls[url] = db[url];
     }
   }
   return userUrls;
-}
+};
 
+//check if the URL exists
 const urlExists = (db,shortUrl) => {
   for(let url in db) {
     if(url === shortUrl){
@@ -30,10 +29,10 @@ const urlExists = (db,shortUrl) => {
   return false;
 }
 
+//used for generating 6 letter random strings 
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2,8);
 };
-
 
 
 module.exports = { checkUserEmail,getUrlsForUser,urlExists,generateRandomString };

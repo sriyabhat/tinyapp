@@ -5,9 +5,9 @@ const {checkUserEmail,getUrlsForUser,urlExists,generateRandomString} = require('
 const { hash } = require('bcrypt');
 const { hashPassword } = require('./crypt');
 const {urlDatabase, users} = require('./db/data-objects');
-const PORT = 3000;
+const PORT = 8080;
 
-module.exports ={
+module.exports = {
   express,
   bodyParser,
   cookieSession,
